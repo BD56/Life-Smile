@@ -1,0 +1,1504 @@
+body { 
+    font-family: 'Inter', sans-serif; 
+}
+
+/* ============================================
+   CARTES - BASE
+   ============================================ */
+
+.card {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, filter 0.2s ease-out;
+    cursor: pointer;
+    flex-basis: 100px;
+    flex-shrink: 1;
+    flex-grow: 0;
+    aspect-ratio: 100 / 140;
+    max-height: 140px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+    background-color: white;
+}
+
+.player-hand .card:hover {
+    transform: translateY(-20px) scale(1.05);
+    z-index: 100;
+}
+
+.card-back {
+    background-color: white;
+    border: 4px solid #EC4899;
+    color: #374151;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-discard {
+    background-color: white;
+    border: 4px solid #F59E0B;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    color: #4B5563;
+}
+
+.card-content {
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.card-smiles { 
+    position: absolute; 
+    top: 5px; 
+    left: 5px; 
+    font-weight: bold; 
+    background: rgba(255,255,255,0.8); 
+    border-radius: 50%; 
+    width: 24px; 
+    height: 24px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
+/* Types de cartes */
+.card-type-pro { background-color: #E0F2FE; border: 2px solid #38BDF8; }
+.card-type-perso { background-color: #FCE7F3; border: 2px solid #EC4899; }
+.card-type-malus { background-color: #FEE2E2; border: 2px solid #EF4444; }
+.card-type-acquisition { background-color: #EBFBD8; border: 2px solid #84CC16; }
+.card-type-special { background-color: #F3E8FF; border: 2px solid #A855F7; }
+.card-type-distinction { background-color: #E0E7FF; border: 2px solid #6366F1; }
+
+.card-invested {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    cursor: default;
+}
+
+/* États spéciaux des cartes */
+.vengeance-target, .choice-target, .malus-target {
+    border: 3px solid #FBBF24 !important;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
+    50% { box-shadow: 0 0 0 5px rgba(251, 191, 36, 0); }
+}
+
+/* ============================================
+   ZONES DE JEU
+   ============================================ */
+
+.board-zone {
+    min-height: 160px;
+    background-color: rgba(0,0,0,0.02);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 8px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.board-zone:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.zone-title {
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 0;
+    border-radius: 4px 4px 0 0;
+    margin: -4px -4px 4px -4px;
+    font-size: 0.875rem;
+}
+
+.card-slot-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================================
+   INTERFACE GÉNÉRALE
+   ============================================ */
+
+.hero-bg {
+    background-color: #4a90e2;
+    background-image: linear-gradient(315deg, #4a90e2 0%, #82c4f5 74%);
+}
+
+#log-message {
+    transition: color 0.5s ease;
+    min-height: 1rem;
+}
+
+#chat-container {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* ============================================
+   BARRE D'ICÔNES ADVERSAIRES (2+ joueurs)
+   ============================================ */
+
+.opponents-icon-bar-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.opponents-icon-bar {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.opponent-icon-compact {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    min-width: 100px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.opponent-icon-compact:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.opponent-icon-compact.active-turn-icon {
+    border-color: #22c55e;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.opponent-icon-avatar-small {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin: 0 auto 8px;
+    transition: all 0.3s ease;
+}
+
+.opponent-icon-avatar-small.pulsing {
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+    }
+}
+
+.opponent-icon-name-small {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 6px;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.opponent-icon-stats-small {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.opponent-icon-stats-small span {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.turn-indicator-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #22c55e;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: badge-enter 0.3s ease-out;
+}
+
+@keyframes badge-enter {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.prison-badge {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   ZONE DE PLATEAU DYNAMIQUE
+   ============================================ */
+
+.opponent-dynamic-board-zone {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-height: 300px;
+    animation: board-slide-in 0.4s ease-out;
+}
+
+@keyframes board-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.active-opponent-board-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.active-opponent-header {
+    padding: 16px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 8px;
+    border-left: 4px solid #22c55e;
+}
+
+.opponent-stats-large {
+    display: flex;
+    gap: 16px;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.opponent-stats-large .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.opponent-board-full {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+@media (min-width: 768px) {
+    .opponent-board-full {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ============================================
+   MODE CLASSIQUE (1 adversaire)
+   ============================================ */
+
+.single-opponent-container {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.single-opponent-container .opponent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.opponent-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.single-opponent-container .opponent-name {
+    color: white;
+}
+
+.opponent-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.single-opponent-container .opponent-stats {
+    color: white;
+}
+
+.opponent-stats span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.current-turn-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    animation: blink 1.5s infinite;
+    margin-left: 8px;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ============================================
+   MODALE DE PLATEAU ADVERSAIRE
+   ============================================ */
+
+#opponent-detail-modal {
+    animation: modal-fade-in 0.3s ease-out;
+    z-index: 35 !important;
+}
+
+@keyframes modal-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#opponent-detail-modal .bg-white {
+    animation: modal-slide-up 0.3s ease-out;
+}
+
+@keyframes modal-slide-up {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-close-btn {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    transform: scale(1.1);
+}
+
+/* ============================================
+   MODALES DE CONFIRMATION ET ALERTE
+   ============================================ */
+
+#confirm-modal .bg-white,
+#alert-modal .bg-white {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   RESPONSIVE MOBILE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .opponents-icon-bar {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .opponent-icon-compact {
+        min-width: 80px;
+        padding: 8px;
+    }
+    
+    .opponent-icon-avatar-small {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+    
+    .opponent-icon-name-small {
+        font-size: 0.75rem;
+    }
+    
+    .opponent-dynamic-board-zone {
+        padding: 12px;
+    }
+    
+    .active-opponent-header {
+        padding: 12px;
+    }
+    
+    .opponent-stats-large {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .opponent-board-full {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+/* ============================================
+   MODE MOBILE
+   ============================================ */
+
+.mobile-mode {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.mobile-mode input,
+.mobile-mode textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    font-size: 16px !important;
+}
+
+.mobile-mode button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.mobile-mode button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+.mobile-mode .card {
+    margin: 4px;
+}
+
+.mobile-mode .card:active {
+    transform: scale(0.95);
+}
+
+.mobile-mode #card-modal > div,
+.mobile-mode #choice-modal > div,
+.mobile-mode #target-modal > div,
+.mobile-mode #action-modal > div {
+    max-width: 95vw;
+    max-height: 90vh;
+    margin: 16px;
+}
+
+.mobile-mode #modal-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-mode #chat-container {
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 60vh;
+    border-radius: 16px 16px 0 0;
+}
+
+.mobile-mode #chat-toggle-btn {
+    width: 56px;
+    height: 56px;
+    bottom: 16px;
+    right: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-mode #chat-input {
+    font-size: 16px !important;
+    padding: 12px;
+    min-height: 48px;
+}
+
+/* Portrait */
+.mobile-mode.portrait .card {
+    flex-basis: 120px;
+    min-width: 120px;
+    max-width: 140px;
+    min-height: 168px;
+    max-height: 196px;
+}
+
+.mobile-mode.portrait .board-zone {
+    min-height: 120px;
+    padding: 8px;
+}
+
+/* Landscape */
+.mobile-mode.landscape .card {
+    flex-basis: 90px;
+    min-width: 90px;
+    max-width: 110px;
+    min-height: 126px;
+    max-height: 154px;
+}
+
+.mobile-mode.landscape .board-zone {
+    min-height: 90px;
+    padding: 4px;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes touch-feedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+#orientation-suggestion {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    font-size: 0.85rem;
+    text-align: center;
+    max-width: 90vw;
+    animation: slideDown 0.5s ease;
+}
+
+/* ============================================
+   PERFORMANCES
+   ============================================ */
+
+.opponent-icon-compact,
+.opponent-icon-avatar-small,
+.mobile-mode .card,
+.mobile-mode button {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .opponent-icon-compact,
+    .current-turn-indicator {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* ============================================
+   SYSTÈME DE PRÉSENCE - STYLES
+   À ajouter dans css/styles.css
+   ============================================ */
+
+/* Timer sur l'icône adversaire */
+.turn-timer-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    z-index: 10;
+}
+
+.timer-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.timer-ring {
+    transform: rotate(-90deg);
+}
+
+.timer-ring-background {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 4;
+}
+
+.timer-ring-progress {
+    fill: none;
+    stroke: #22c55e;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 226; /* 2 * PI * 36 */
+    transition: stroke-dashoffset 1s linear;
+}
+
+.timer-ring-progress.warning {
+    stroke: #ef4444;
+    animation: pulse-ring 1s infinite;
+}
+
+@keyframes pulse-ring {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.timer-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: white;
+}
+
+.timer-text.warning {
+    color: #ef4444;
+    animation: pulse-text 1s infinite;
+}
+
+@keyframes pulse-text {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.timer-warning-pulse {
+    animation: warning-pulse 1s infinite;
+}
+
+@keyframes warning-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+}
+
+/* Timer plein écran */
+.fullscreen-timer {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 16px 32px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 30;
+    animation: timer-slide-down 0.5s ease-out;
+}
+
+.fullscreen-timer.warning {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    animation: timer-shake 0.5s infinite;
+}
+
+@keyframes timer-slide-down {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes timer-shake {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    25% { transform: translateX(-50%) translateY(-2px); }
+    75% { transform: translateX(-50%) translateY(2px); }
+}
+
+.fullscreen-timer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.timer-label {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.timer-display {
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.timer-display.warning {
+    animation: timer-pulse 1s infinite;
+}
+
+@keyframes timer-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.extension-btn {
+    background: white;
+    color: #667eea;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.extension-btn:hover {
+    background: #f3f4f6;
+    transform: scale(1.05);
+}
+
+.extension-btn:disabled {
+    background: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.timer-warning-text {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 8px;
+    animation: blink 1s infinite;
+}
+
+/* Badge AFK */
+.afk-badge {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+    z-index: 11;
+    animation: afk-badge-enter 0.3s ease-out;
+}
+
+@keyframes afk-badge-enter {
+    from {
+        transform: scale(0) rotate(-10deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* Modales de vote et pause */
+#kick-vote-modal,
+#pause-modal {
+    animation: modal-fade-in 0.3s ease-out;
+}
+
+#kick-vote-modal .bg-white,
+#pause-modal .bg-white {
+    animation: modal-slide-up 0.3s ease-out;
+}
+
+#vote-timer,
+#pause-timer {
+    font-family: 'Courier New', monospace;
+}
+
+/* Notification de retour */
+.player-return-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+    z-index: 9999;
+    animation: notification-slide-in 0.5s ease-out;
+}
+
+.player-return-notification.fade-out {
+    animation: notification-fade-out 0.5s ease-out forwards;
+}
+
+@keyframes notification-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes notification-fade-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification-text {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+    .fullscreen-timer {
+        top: 60px;
+        padding: 12px 24px;
+    }
+    
+    .timer-display {
+        font-size: 2.5rem;
+    }
+    
+    .timer-circle {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .timer-ring {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .timer-text {
+        font-size: 1rem;
+    }
+    
+    .player-return-notification {
+        top: 60px;
+        right: 10px;
+        padding: 12px 16px;
+    }
+    
+    .notification-text {
+        font-size: 0.875rem;
+    }
+}
+
+/* Animations supplémentaires */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* États des boutons de vote */
+#vote-yes-btn:active,
+#vote-no-btn:active,
+#wait-btn:active,
+#quit-btn:active {
+    transform: scale(0.95);
+}
+
+/* ✅ NOUVEAU : Timer inline à côté de "Votre main" */
+.inline-timer {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    animation: timer-pulse-subtle 2s infinite;
+}
+
+.inline-timer.warning {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    animation: timer-pulse-warning 1s infinite;
+}
+
+@keyframes timer-pulse-subtle {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+    50% { 
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+    }
+}
+
+@keyframes timer-pulse-warning {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.7);
+    }
+}
+
+/* Responsive mobile pour timer inline */
+@media (max-width: 768px) {
+    .inline-timer {
+        font-size: 0.875rem;
+        padding: 3px 8px;
+        margin-left: 8px;
+    }
+}
+
+
+
+/* Timer sur icône adversaire */
+.turn-timer-overlay {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.timer-badge {
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.timer-badge.warning {
+    background: #ef4444;
+    animation: pulse-timer 1s infinite;
+}
+
+@keyframes pulse-timer {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6);
+    }
+}
+
+/* Timer inline pour "Votre main" (version simple) */
+.inline-timer {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 4px 10px;
+    background: #667eea;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    vertical-align: middle;
+}
+
+.inline-timer.warning {
+    background: #ef4444;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* ============================================
+   CORRECTION - CARTES DANS LES ZONES
+   ============================================ */
+
+/* Zone de jeu - forcer le contenu à rester dedans */
+.board-zone {
+    min-height: 160px;
+    max-height: 280px; /* ✅ AJOUTÉ */
+    background-color: rgba(0,0,0,0.02);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 8px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    overflow: hidden; /* ✅ AJOUTÉ */
+}
+
+/* Wrapper de cartes - scroll si débordement */
+.card-slot-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* ✅ MODIFIÉ : wrap au lieu de nowrap */
+    gap: 4px;
+    flex-grow: 1;
+    align-items: flex-start; /* ✅ MODIFIÉ */
+    justify-content: center;
+    overflow-y: auto; /* ✅ AJOUTÉ : scroll vertical si nécessaire */
+    overflow-x: hidden; /* ✅ AJOUTÉ */
+    padding: 2px;
+}
+
+/* Cartes dans les zones - taille fixe */
+.board-zone .card {
+    flex-basis: 70px !important; /* ✅ AJOUTÉ */
+    min-width: 70px !important; /* ✅ AJOUTÉ */
+    max-width: 70px !important; /* ✅ AJOUTÉ */
+    min-height: 98px !important; /* ✅ AJOUTÉ */
+    max-height: 98px !important; /* ✅ AJOUTÉ */
+    flex-shrink: 0; /* ✅ AJOUTÉ */
+    flex-grow: 0; /* ✅ AJOUTÉ */
+}
+
+/* Cartes dans la main - plus grandes */
+#player-hand .card {
+    flex-basis: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    min-height: 140px;
+    max-height: 140px;
+}
+
+/* ============================================
+   MODE MOBILE - ADAPTATION
+   ============================================ */
+
+@media (max-width: 768px) {
+    .board-zone {
+        min-height: 120px;
+        max-height: 200px;
+    }
+    
+    /* Cartes encore plus petites sur mobile */
+    .board-zone .card {
+        flex-basis: 60px !important;
+        min-width: 60px !important;
+        max-width: 60px !important;
+        min-height: 84px !important;
+        max-height: 84px !important;
+    }
+    
+    /* Main sur mobile */
+    #player-hand .card {
+        flex-basis: 80px;
+        min-width: 80px;
+        max-width: 80px;
+        min-height: 112px;
+        max-height: 112px;
+    }
+}
+
+/* ============================================
+   SCROLL STYLING POUR LES ZONES
+   ============================================ */
+
+.card-slot-wrapper::-webkit-scrollbar {
+    width: 4px;
+}
+
+.card-slot-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+}
+
+.card-slot-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+}
+
+.card-slot-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+
+/* ============================================
+   HEADER NAVIGATION - BANDEAU GLOBAL
+   ============================================ */
+
+/* Variables spécifiques au header */
+:root {
+    --header-bg: #FFFFFF;
+    --header-primary: #3498DB;
+    --header-border: #E0E0E0;
+    --header-hover-bg: #f1f9ff;
+}
+
+/* Header container */
+#app-header {
+    width: 100%;
+    background-color: var(--header-bg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    padding: 0.5rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--header-border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    margin-bottom: 1rem;
+}
+
+/* Logo Life Smile (bouton home) */
+#header-home-btn {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--header-primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+#header-home-btn:hover {
+    color: #2980b9;
+    transform: scale(1.05);
+}
+
+/* Groupe boutons gauche */
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* Bouton Règles */
+#header-rules-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--header-primary);
+    background-color: var(--header-bg);
+    color: var(--header-primary);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#header-rules-btn:hover {
+    background-color: var(--header-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+}
+
+#header-rules-btn:active {
+    transform: translateY(0);
+}
+
+/* Bouton Retour (optionnel) */
+#header-back-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background-color: #f3f4f6;
+    color: #374151;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#header-back-btn:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-2px);
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+    #app-header {
+        padding: 0.75rem 4%;
+    }
+
+    #header-home-btn {
+        font-size: 1.25rem;
+    }
+
+    .header-left-group {
+        gap: 1rem;
+    }
+
+    #header-rules-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    #header-rules-btn svg {
+        display: none; /* Cacher l'icône sur mobile pour gagner de la place */
+    }
+
+    #header-back-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 480px) {
+    #header-home-btn {
+        font-size: 1.1rem;
+    }
+
+    .header-left-group {
+        gap: 0.75rem;
+    }
+
+    #header-rules-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* ===========================================
+   🎯 ALIGNEMENT DU HEADER ET ESPACEMENTS
+   =========================================== */
+
+/* Header compact et collé au fond bleu */
+#app-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 0.4rem 1.5rem !important;
+  margin: 0;
+  height: auto;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Forcer l'alignement à gauche du contenu du header */
+#app-header > div {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start !important; /* ✅ Aligne tout à gauche */
+  gap: 1.25rem;
+}
+
+/* Groupe de gauche : boutons côte à côte */
+#app-header .header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Boutons du header */
+#app-header button {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  transition: all 0.2s ease;
+}
+
+#app-header button:hover {
+  background-color: #e0e7ff;
+  color: #1e40af;
+}
+
+/* Bouton règles avec icône */
+#header-rules-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #2563eb;
+}
+
+#header-rules-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
+
+/* Supprimer le vide entre le header et le fond bleu */
+.hero-bg {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Descendre légèrement le grand titre */
+.hero-bg h1 {
+  margin-top: 2rem; /* ✅ Espace ajouté au-dessus du titre */
+}
+
+/* Forcer l'alignement à gauche du contenu du header */
+#app-header > div {
+  justify-content: flex-start !important;
+}
+
+/* S'assure que le groupe gauche ne s'étire pas en plein écran */
+#app-header .header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 auto; /* ne pas prendre toute la largeur */
+}
+
+/* Le bouton "Retour" pousse bien à droite quand il est visible */
+#header-back-btn {
+  margin-left: auto !important;
+}
+
+/* ============================================
+   CORRECTIF VISUEL HEADER & HERO
+   ============================================ */
+
+/* 1. Aligne le contenu du header (boutons) à gauche */
+#app-header > div {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important; /* Force la pleine largeur du conteneur */
+    padding-left: 1.5rem;       /* Ajoute une marge de sécurité à gauche */
+}
+
+/* 2. Supprime l'espace blanc entre le header et le fond bleu */
+#app-header {
+    margin-bottom: 0 !important; /* Annule le 'margin-bottom: 1rem' défini plus haut */
+}
+
+/* 3. Décolle le titre "Life Smile" du header (donne de l'air) */
+.hero-bg {
+    padding-top: 2.5rem !important; /* Remplace 'py-20' et donne un espace en haut */
+}

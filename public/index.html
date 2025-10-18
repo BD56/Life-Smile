@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Life Smile">
+    <meta name="theme-color" content="#667eea">
+    <title>Life Smile  - Le Jeu de Cartes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+    <!-- Header Navigation -->
+    <header id="app-header" class="bg-white shadow-md py-1 px-2 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-start">
+            <!-- Groupe gauche : Logo + Règles -->
+            <div class="header-left-group">
+                <button id="header-home-btn">Life Smile</button>
+                <button id="header-rules-btn">
+                    <svg>...</svg>
+                    Règles du jeu
+                </button>
+                
+            </div>
+            
+            <!-- Bouton Retour à DROITE -->
+            <button id="header-back-btn" class="hidden ml-auto">← Retour</button>
+        </div>
+    </header>
+    <!-- Vue Toggle Button -->
+    <button id="view-mode-toggle" class="view-mode-toggle hidden">
+        <span id="view-mode-icon">📊</span>
+        <span id="view-mode-text">Vue compacte</span>
+    </button>
+
+    <!-- Home Container -->
+    <div id="home-container" class="w-full text-center">
+        <div class="hero-bg text-white py-20 px-4">
+            <h1 class="text-5xl font-bold mb-2 mt-6 md:mt-10">Life Smile</h1>
+            <p class="text-xl max-w-2xl mx-auto">Tentez de réussir votre vie... <br class="sm:hidden"/> <strong>en pourrissant celle des autres !</strong></p>
+            <div class="mt-8 max-w-md mx-auto">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="start-game-btn" class="w-full bg-white text-blue-600 font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                        Créer une partie
+                    </button>
+                </div>
+                <div class="mt-6 text-white text-lg">ou</div>
+                <div class="mt-6 flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="game-code-input" placeholder="Entrez un code de partie" 
+                        class="w-full p-3 rounded-full text-center text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-400"
+                        style="font-size: 16px;">
+                    <button id="join-game-btn" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                        Rejoindre
+                    </button>
+                </div>
+                <p id="home-error-message" class="text-red-300 font-semibold mt-4"></p>
+            </div>
+        </div>
+        <div class="py-16 px-4">
+            <h2 class="text-3xl font-bold mb-10">Comment jouer ?</h2>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-10 max-w-4xl mx-auto">
+                <div class="flex-1">
+                    <div class="text-blue-500 mb-4 text-5xl font-bold">1</div>
+                    <h3 class="text-xl font-semibold mb-2">Créez une partie</h3>
+                    <p class="text-gray-600">Lancez une nouvelle partie en un seul clic et préparez-vous à construire votre nouvelle vie.</p>
+                </div>
+                <div class="flex-1">
+                     <div class="text-pink-500 mb-4 text-5xl font-bold">2</div>
+                    <h3 class="text-xl font-semibold mb-2">Invitez vos amis</h3>
+                    <p class="text-gray-600">Partagez simplement le lien de la partie avec vos amis (2 à 6 joueurs).</p>
+                </div>
+                <div class="flex-1">
+                     <div class="text-green-500 mb-4 text-5xl font-bold">3</div>
+                    <h3 class="text-xl font-semibold mb-2">Gagnez la partie</h3>
+                    <p class="text-gray-600">Accumulez le plus de "smiles" en posant des cartes et en envoyant des malus aux adversaires !</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lobby Container -->
+    <div id="lobby-container" class="hidden w-full max-w-4xl mx-auto p-4 sm:p-8">
+        <div id="nickname-prompt" class="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-xl text-center">
+            <h2 class="text-2xl font-bold mb-4">Choisissez votre pseudo</h2>
+            <div class="flex gap-2">
+                <input type="text" id="nickname-input" placeholder="Votre pseudo" class="w-full p-3 rounded-full text-center text-gray-800 border-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <button id="nickname-submit-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full">Valider</button>
+            </div>
+            <p id="nickname-error" class="text-red-500 mt-2"></p>
+        </div>
+
+        <div id="lobby-wait" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 bg-white rounded-2xl shadow-xl p-6 flex flex-col justify-between">
+                 <div>
+                    <h2 class="text-2xl font-bold mb-6 text-center">Paramètres de partie</h2>
+                    <div class="space-y-4">
+                        <p id="lobby-status-message" class="text-center text-gray-600 mb-4"></p>
+                        
+                        <div id="max-players-setting" class="hidden">
+                            <label class="font-semibold text-gray-700">Nombre maximum de joueurs</label>
+                            <select id="max-players-select" class="w-full mt-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5">
+                                <option value="2">2 joueurs</option>
+                                <option value="3">3 joueurs</option>
+                                <option value="4">4 joueurs</option>
+                                <option value="5">5 joueurs</option>
+                                <option value="6">6 joueurs</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="font-semibold text-gray-700">Lien d'invitation complet</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="text" id="lobby-invite-link" readonly class="w-full bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5">
+                                <button id="lobby-copy-url-btn" title="Copier le lien" class="bg-blue-500 hover:bg-blue-600 text-white font-bold p-2 rounded-lg flex-shrink-0">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="font-semibold text-gray-700">Code de la partie</label>
+                            <div class="flex gap-2 mt-1">
+                                <input type="text" id="lobby-invite-code" readonly class="w-full bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 font-mono">
+                                <button id="lobby-copy-code-btn" title="Copier le code" class="bg-blue-500 hover:bg-blue-600 text-white font-bold p-2 rounded-lg flex-shrink-0">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                         <button id="lobby-share-btn" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path></svg>
+                            Partager
+                        </button>
+                    </div>
+                 </div>
+                 <button id="lobby-start-game-btn" class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Commencer la partie
+                </button>
+            </div>
+            <div class="md:col-span-1 bg-white rounded-2xl shadow-xl p-6">
+                <h3 class="text-xl font-bold text-center mb-4">Joueurs <span id="lobby-player-count">1/2</span></h3>
+                <div id="lobby-player-list" class="space-y-3">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" class="hidden w-full max-w-7xl mx-auto bg-white rounded-2xl shadow-xl p-4 space-y-4">
+        <div id="opponents-area" class="mb-4"></div>
+
+        <div id="table-center" class="flex justify-around items-center py-4 bg-gray-700 rounded-lg">
+            <div id="draw-pile" class="card card-back" title="Pioche">
+                <div class="relative w-full h-full flex items-center justify-center">
+                    <span class="text-6xl font-bold select-none">?</span>
+                    <span id="draw-pile-count" class="absolute bottom-1 right-2 text-lg font-bold bg-white/80 px-2 rounded-md">0</span>
+                </div>
+            </div>
+            <div class="text-center">
+                <div id="status-message" class="text-white font-semibold text-lg max-w-md"></div>
+                <div id="log-message" class="text-gray-300 text-sm max-w-md mt-1 h-4"></div>
+            </div>
+            <div id="discard-pile" class="card"></div>
+        </div>
+
+        <div id="player-area">
+            <h2 class="text-lg font-bold mb-2 px-2"><span id="player-name">Vous</span> (<span id="player-smiles">0</span> 😊)</h2>
+            <div class="player-board grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div id="player-pro-area" class="board-zone border-blue-400">
+                    <h3 class="zone-title bg-blue-500">Études / Métier / Salaires</h3>
+                    <div class="card-slot-wrapper"></div>
+                </div>
+                <div id="player-perso-area" class="board-zone border-pink-400">
+                    <h3 class="zone-title bg-pink-500">Flirts / Mariage / Enfants</h3>
+                    <div class="card-slot-wrapper"></div>
+                </div>
+                <div id="player-acquisitions-area" class="board-zone border-green-400">
+                    <h3 class="zone-title bg-green-500">Acquisitions / Distinctions</h3>
+                    <div class="card-slot-wrapper"></div>
+                </div>
+                <div id="player-malus-area" class="board-zone border-red-400">
+                    <h3 class="zone-title bg-red-500">Malus</h3>
+                    <div class="card-slot-wrapper"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="player-hand-area" class="border-t-4 border-gray-300 pt-4 mt-4">
+            <h2 id="hand-title" class="text-lg font-bold text-center mb-2">Votre main</h2>
+            <div id="player-hand" class="flex justify-center flex-wrap gap-2 min-h-[150px]"></div>
+        </div>
+         <div id="controls" class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t">
+            <div id="action-buttons" class="flex gap-2">
+                 <button id="resign-btn" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg hidden">Démissionner</button>
+                 <button id="divorce-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hidden">Divorcer</button>
+            </div>
+            <button id="end-game-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed">Proposer de finir</button>
+             <button id="stop-rainbow-btn" class="hidden bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">Terminer Arc-en-ciel</button>
+        </div>
+    </div>
+    
+    <!-- Rematch Container -->
+    <div id="rematch-container" class="hidden fixed inset-0 bg-black bg-opacity-75 items-center justify-center p-4 z-50">
+        <div id="rematch-content" class="w-full max-w-2xl p-8 bg-white rounded-2xl shadow-xl text-center max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-end">
+                 <button id="rematch-minimize-btn" class="text-2xl font-bold text-gray-500 hover:text-gray-800">_</button>
+            </div>
+            <h2 id="rematch-title" class="text-3xl font-bold mb-4">Partie Terminée !</h2>
+            <div id="rematch-scores" class="mb-6 space-y-2"></div>
+            <div class="mb-6">
+                <p class="font-bold text-lg mb-2">Rejouer ?</p>
+                <div id="rematch-votes" class="flex flex-wrap justify-center items-center gap-4 text-2xl"></div>
+                 <p id="rematch-timer" class="text-lg text-gray-600 mt-4"></p>
+            </div>
+            <div class="flex gap-4">
+                <button id="rematch-yes-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full disabled:bg-gray-400">Rejouer</button>
+                <button id="rematch-home-btn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full">Accueil</button>
+            </div>
+        </div>
+    </div>
+    <button id="rematch-show-btn" class="hidden fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-lg">Afficher les résultats</button>
+
+    <!-- Modals -->
+    <div id="card-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 id="modal-title" class="text-xl font-bold"></h2>
+                <button id="modal-close-btn" class="text-gray-500 hover:text-gray-800 text-3xl font-bold">&times;</button>
+            </div>
+            <div id="modal-content" class="p-4 overflow-y-auto">
+                <div class="flex flex-wrap justify-center gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="action-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm text-center p-6">
+            <h2 id="action-modal-title" class="text-xl font-bold mb-4">Que voulez-vous faire ?</h2>
+            <div id="action-modal-card-preview" class="flex justify-center mb-6"></div>
+            <div class="flex gap-4">
+                <button id="action-modal-play-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full">Jouer</button>
+                <button id="action-modal-discard-btn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full">Défausser</button>
+            </div>
+            <button id="action-modal-cancel-btn" class="mt-4 text-gray-500 hover:text-gray-800">Annuler</button>
+        </div>
+    </div>
+    
+    <div id="choice-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl text-center p-6">
+            <h2 id="choice-modal-title" class="text-xl font-bold mb-4">Faites un choix</h2>
+            <div id="choice-modal-content" class="flex flex-wrap justify-center gap-4"></div>
+        </div>
+    </div>
+
+    <div id="target-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md text-center p-6">
+            <h2 id="target-modal-title" class="text-xl font-bold mb-4">Choisissez une cible</h2>
+            <div id="target-modal-content" class="space-y-3"></div>
+        </div>
+    </div>
+    
+    <!-- Chat -->
+    <button id="chat-toggle-btn" class="hidden fixed bottom-4 right-4 bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-full shadow-lg z-30">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <span id="chat-notification-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"></span>
+    </button>
+    <div id="chat-container" class="fixed bottom-20 right-4 w-80 h-96 bg-white rounded-lg shadow-2xl flex flex-col z-40 transform translate-x-full opacity-0 pointer-events-none">
+        <div class="p-3 bg-purple-600 text-white font-bold rounded-t-lg flex justify-between items-center">
+            <span>Discussion</span>
+            <button id="chat-minimize-btn" class="text-white hover:text-gray-300 text-2xl font-bold">&minus;</button>
+        </div>
+        <div id="chat-messages" class="flex-1 p-3 overflow-y-auto"></div>
+        <div class="p-2 border-t flex gap-2">
+            <input type="text" id="chat-input" class="w-full border rounded-full px-3 py-1" placeholder="Écrire un message...">
+            <button id="chat-send-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-1 px-3 rounded-full">Envoyer</button>
+        </div>
+    </div>
+
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md text-center p-6">
+            <h2 id="confirm-modal-title" class="text-xl font-bold mb-4">Confirmation</h2>
+            <p id="confirm-modal-message" class="text-gray-700 mb-6"></p>
+            <div class="flex gap-4">
+                <button id="confirm-modal-cancel-btn" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full">
+                    Annuler
+                </button>
+                <button id="confirm-modal-ok-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Alert Modal -->
+<div id="alert-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md text-center p-6">
+        <h2 id="alert-modal-title" class="text-xl font-bold mb-4">Information</h2>
+        <p id="alert-modal-message" class="text-gray-700 mb-6"></p>
+        <button id="alert-modal-ok-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full">
+            OK
+        </button>
+    </div>
+</div>
+<!-- Modale Règles du Jeu -->
+<!-- Modale des règles -->
+    <div id="rules-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-blue-600">📖 Règles du jeu Life Smile</h2>
+                <button id="rules-modal-close-btn" class="text-gray-500 hover:text-gray-700 text-3xl font-bold leading-none">&times;</button>
+            </div>
+            <div id="rules-modal-content" class="p-6"></div>
+        </div>
+    </div>
+
+    <!-- Scripts modulaires -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
