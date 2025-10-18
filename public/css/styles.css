@@ -1456,32 +1456,12 @@ body {
   margin-top: 2rem; /* ✅ Espace ajouté au-dessus du titre */
 }
 
-/* Forcer l'alignement à gauche du contenu du header */
-#app-header > div {
-  justify-content: flex-start !important;
-}
-
-/* S'assure que le groupe gauche ne s'étire pas en plein écran */
-#app-header .header-left-group {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 0 0 auto; /* ne pas prendre toute la largeur */
-}
-
 
 
 /* ============================================
    CORRECTIF VISUEL HEADER & HERO
    ============================================ */
 
-/* 1. Aligne le contenu du header (boutons) à gauche */
-#app-header > div {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    max-width: 100% !important; /* Force la pleine largeur du conteneur */
-    padding-left: 1.5rem;       /* Ajoute une marge de sécurité à gauche */
-}
 
 /* 2. Supprime l'espace blanc entre le header et le fond bleu */
 #app-header {
