@@ -1406,13 +1406,6 @@ body {
   z-index: 50;
 }
 
-/* Forcer l'alignement à gauche du contenu du header */
-#app-header > div {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start !important; /* ✅ Aligne tout à gauche */
-  gap: 1.25rem;
-}
 
 /* Groupe de gauche : boutons côte à côte */
 #app-header .header-left-group {
@@ -1476,10 +1469,7 @@ body {
   flex: 0 0 auto; /* ne pas prendre toute la largeur */
 }
 
-/* Le bouton "Retour" pousse bien à droite quand il est visible */
-#header-back-btn {
-  margin-left: auto !important;
-}
+
 
 /* ============================================
    CORRECTIF VISUEL HEADER & HERO

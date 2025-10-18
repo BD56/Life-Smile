@@ -3,6 +3,10 @@
 // ============================================
 
 import * as HomeUI from './ui/home.js';
+// ✅ AJOUT : Import des fonctions pour cacher les autres écrans
+import { hideLobby } from './ui/lobby.js';
+import { hideBoard } from './ui/board.js';
+import { showConfirm } from './ui/confirm-modal.js';
 
 let currentView = 'home';
 
@@ -22,9 +26,13 @@ export function initHeaderNavigation() {
 /**
  * Gère le clic sur le bouton "Life Smile"
  */
-function handleHomeClick() {
+async function handleHomeClick() {
     if (currentView === 'lobby' || currentView === 'game') {
-        if (confirm('Êtes-vous sûr de vouloir quitter ? La partie sera perdue.')) {
+        const confirmed = await showConfirm(
+            'Êtes-vous sûr de vouloir quitter ? La partie sera perdue.',
+            'Quitter la partie'
+        );
+        if (confirmed) {
             returnToHome();
         }
     } else {
@@ -35,11 +43,19 @@ function handleHomeClick() {
 /**
  * Gère le clic sur "Retour"
  */
-function handleBackClick() {
+async function handleBackClick() {
     if (currentView === 'lobby') {
-        if (confirm('Êtes-vous sûr de vouloir quitter le lobby ?')) returnToHome();
+        const confirmed = await showConfirm(
+            'Êtes-vous sûr de vouloir quitter le lobby ?',
+            'Quitter le lobby'
+        );
+        if (confirmed) returnToHome();
     } else if (currentView === 'game') {
-        if (confirm('Êtes-vous sûr de vouloir quitter la partie ?')) returnToHome();
+        const confirmed = await showConfirm(
+            'Êtes-vous sûr de vouloir quitter la partie ?',
+            'Quitter la partie'
+        );
+        if (confirmed) returnToHome();
     }
 }
 
@@ -59,7 +75,8 @@ export function updateHeaderBackButton(view) {
  * Affiche la modale des règles du jeu (version fixe)
  */
 export function showRulesModal() {
-    const rulesModal = document.getElementById('rules-modal');
+    // ... (contenu de la fonction inchangé) ...
+        const rulesModal = document.getElementById('rules-modal');
     const content = document.getElementById('rules-modal-content');
 
     if (!rulesModal || !content) {
@@ -75,7 +92,7 @@ export function showRulesModal() {
                 <section>
                     <h3 class="text-2xl font-bold text-purple-600 mb-3">🎯 Objectif du jeu</h3>
                     <p class="text-gray-700 leading-relaxed">
-                        Accumulez le maximum de <strong>Smiles (😊)</strong> en jouant des cartes qui représentent votre vie. 
+                        Accumulez le maximum de <strong>Smiles (😊)</strong> en jouant des cartes qui représentent votre vie.
                         Chaque carte a une valeur en Smiles. Le joueur avec le plus de Smiles à la fin gagne !
                     </p>
                     <p class="text-gray-700 leading-relaxed mt-2">
@@ -212,9 +229,10 @@ export function showRulesModal() {
     });
 }
 
-// ... (reste du fichier)
+
 /**
  * Retour à l'écran d'accueil
+ * ✅ MODIFIÉ : Cache explicitement lobby et board
  */
 export function returnToHome() {
     if (window.gameUnsubscribe) {
@@ -225,11 +243,18 @@ export function returnToHome() {
     window.localGameState = null;
     currentView = 'home';
 
+    // ✅ AJOUT : Cacher les autres écrans
+    hideLobby();
+    hideBoard();
+
+    // Afficher l'accueil
     HomeUI.showHome();
     updateHeaderBackButton('home');
 
+    // Cacher les boutons spécifiques au jeu/lobby
     const chatToggleBtn = document.getElementById('chat-toggle-btn');
     const viewModeToggle = document.getElementById('view-mode-toggle');
     if (chatToggleBtn) chatToggleBtn.classList.add('hidden');
     if (viewModeToggle) viewModeToggle.classList.add('hidden');
 }
+
