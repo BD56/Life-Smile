@@ -50,7 +50,7 @@ import {
     initHeaderNavigation, 
     updateHeaderBackButton, 
     showRulesModal,
-    returnToHome 
+    returnToHome
 } from './header-navigation.js'; // Créer ce fichier
 
 
@@ -593,44 +593,46 @@ function handleGameStateUpdate(gameState) {
     }
 
     if (gameState.status === 'lobby') {
-        showScreen('lobby');
-        LobbyUI.renderLobby(gameState, userId, currentGameId);
-        
-        // ✨ NOUVEAU : Nettoyer la présence au retour lobby
-        PresenceService.cleanupPresence();
-        PresenceUI.hideFullScreenTimer();
-        
-    } else if (gameState.status === 'active') {
-        showScreen('game');
-        renderFullGame();
-        
-        // ✨ NOUVEAU : Gérer le système de présence
-        checkEndGameVotes(gameState);
-        checkEmptyDeck(gameState);  // ✅ AJOUTÉ
+            showScreen('lobby');
+            LobbyUI.renderLobby(gameState, userId, currentGameId);
+            
+            // ✅ CRUCIAL : Si on vient d'une partie terminée, MINIMISER
+            if (oldStatus === 'finished' || oldStatus === 'endgame') {
+                console.log('📊 Retour au lobby après rematch → Minimisation modale');
+                ModalsUI.minimizeRematchScreen();
+            }
+            
+            PresenceService.cleanupPresence();
+            PresenceUI.hideFullScreenTimer();
+            
+        } else if (gameState.status === 'active') {
+            showScreen('game');
+            renderFullGame();
+            
+            // ✅ CRUCIAL : Partie commence → TOUT cacher
+            console.log('❌ Partie active → Suppression modale rematch');
+            ModalsUI.hideRematchScreen();
+            
+            checkEndGameVotes(gameState);
+            checkEmptyDeck(gameState);
+            handlePresenceSystem(gameState);
+            
+        } else if (gameState.status === 'paused') {
+            showScreen('game');
+            renderFullGame();
+            handleGamePause(gameState);
 
-                
-        // ✨ Gérer le système de présence
-        handlePresenceSystem(gameState);
-        
-    } else if (gameState.status === 'paused') {
-        // ✨ NOUVEAU : Gérer la pause
-        showScreen('game');
-        renderFullGame();
-        handleGamePause(gameState);
-
-
-    } else if (gameState.status === 'endgame' || gameState.status === 'finished') {
-    showScreen('game');
-    renderFullGame();
-    
-    // ✅ Afficher la modale de rematch
-    ModalsUI.showRematchScreen();
-    ModalsUI.renderRematchScreen(gameState, userId);
-    
-    // Nettoyer la présence
-    PresenceService.cleanupPresence();
-    PresenceUI.hideInlineTimer();
-}
+        } else if (gameState.status === 'endgame' || gameState.status === 'finished') {
+            showScreen('game');
+            renderFullGame();
+            
+            ModalsUI.showRematchScreen();
+            ModalsUI.renderRematchScreen(gameState, userId);
+            checkRematchVotes(gameState);
+            
+            PresenceService.cleanupPresence();
+            PresenceUI.hideInlineTimer();
+        }
 
 
     /**
@@ -644,26 +646,6 @@ function handleGameStateUpdate(gameState) {
             const playerKeys = Object.keys(gameState.players);
             finishGame(currentGameId, playerKeys, '🏁 Pioche épuisée ! Partie terminée.');
         }
-    }
-}
-/**
- * ✅ Vérifie si tous les joueurs ont voté pour finir
- */
-function checkEndGameVotes(gameState) {
-    if (!gameState || !gameState.endGameVotes) return;
-    
-    const playerKeys = Object.keys(gameState.players);
-    const allVoted = playerKeys.every(key => gameState.endGameVotes[key] === true);
-    
-    console.log('🎯 Vérification votes:', {
-        joueurs: playerKeys,
-        votes: gameState.endGameVotes,
-        tousOntVoté: allVoted
-    });
-    
-    if (allVoted && gameState.status === 'active') {
-        console.log('✅ Tous ont voté - Terminaison de la partie');
-        finishGame(currentGameId, playerKeys, '🏁 Partie terminée par vote unanime !');
     }
 }
 
@@ -684,19 +666,90 @@ function renderFullGame() {
     }
 }
 
+
+
+
+
+/**
+ * ✅ Vérifie si tous les joueurs ont voté pour finir
+ */
+function checkEndGameVotes(gameState) {
+    if (!gameState || !gameState.endGameVotes) return;
+    
+    const playerKeys = Object.keys(gameState.players);
+    const allVoted = playerKeys.every(key => gameState.endGameVotes[key] === true);
+    
+    console.log('🎯 Vérification votes fin de partie:', {
+        joueurs: playerKeys,
+        votes: gameState.endGameVotes,
+        tousOntVoté: allVoted
+    });
+    
+    if (allVoted && gameState.status === 'active') {
+        console.log('✅ Tous ont voté pour finir - Terminaison de la partie');
+        finishGame(currentGameId, playerKeys, '🏁 Partie terminée par vote unanime !');
+    }
+}
+
+/**
+ * ✅ Vérifie si la pioche est vide
+ */
+function checkEmptyDeck(gameState) {
+    if (!gameState || !gameState.drawPile) return;
+    
+    if (gameState.drawPile.length === 0 && gameState.status === 'active') {
+        console.log('🃏 Pioche vide - Fin de partie');
+        const playerKeys = Object.keys(gameState.players);
+        finishGame(currentGameId, playerKeys, '🃏 Pioche épuisée ! Partie terminée.');
+    }
+}
+
+/**
+ * ✅ Vérifie si tous les joueurs ont voté pour rejouer
+ */
+function checkRematchVotes(gameState) {
+    if (!gameState || !gameState.rematchVotes) return;
+    
+    const playerKeys = Object.keys(gameState.players);
+    
+    // Vérifier si tous ont voté OUI
+    const allVotedYes = playerKeys.every(key => 
+        gameState.rematchVotes[key] === true
+    );
+    
+    console.log('🔄 Vérification votes rematch:', {
+        joueurs: playerKeys,
+        votes: gameState.rematchVotes,
+        tousOntVotéOui: allVotedYes
+    });
+    
+    // Si tout le monde a voté OUI, lancer le compte à rebours
+    if (allVotedYes && !rematchCountdownInterval) {
+        console.log('✅ Tous ont voté OUI - Lancement compte à rebours');
+        
+        // ⚠️ LA MODALE RESTE OUVERTE pendant le compte à rebours
+        rematchCountdownInterval = ModalsUI.startRematchCountdown(async () => {
+            console.log('🎮 Timer à 0 - Redémarrage...');
+            
+            try {
+                await resetGameForRematch(currentGameId, gameState.players);
+                console.log('✅ Retour au lobby');
+                rematchCountdownInterval = null;
+            } catch (error) {
+                console.error('❌ Erreur rematch:', error);
+            }
+        });
+    }
+}
+
+
+
+
+
+
 // ============================================
 // 3. NOUVELLE FONCTION : handlePresenceSystem()
 // ============================================
-
-/**
- * Gère le système de présence (timers, badges AFK, votes)
- */
-/**
- * Gère le système de présence (timers, badges AFK, votes)
- */
-/**
- * Gère le système de présence (timers, badges AFK, votes)
- */
 /**
  * Gère le système de présence (timers, badges AFK, votes)
  * ✅ VERSION CORRIGÉE - Timer au bon endroit selon le joueur actif
@@ -828,6 +881,28 @@ function handlePresenceSystem(gameState) {
     } else {
         PresenceUI.hideKickVoteModal();
     }
+
+
+    // CAS 1 : C'EST MON TOUR
+if (currentPlayerKey === myPlayerKey) {
+    console.log('  ➡️ Mon tour : Timer sur "Votre main"');
+    
+    PresenceService.startTurnTimer(
+        currentGameId,
+        gameState,
+        currentPlayerKey,
+        (seconds, isWarning) => {
+            console.log('🎯 Callback timer appelé:', seconds); // ✅ AJOUTER CE LOG
+            PresenceUI.updateInlineTimer(seconds, isWarning);
+        },
+        () => {
+            PresenceUI.hideInlineTimer();
+        }
+    );
+    // ...
+}
+
+    
 }
 // ============================================
 // 4. NOUVELLE FONCTION : handleGamePause()
@@ -966,3 +1041,122 @@ async function handlePlayerLeaveGame() {
 window.addEventListener('beforeunload', () => {
     PresenceService.cleanupPresence();
 });
+
+// ... (autre code de main.js) ...
+
+/**
+ * ✅ NOUVEAU : Gère la logique de départ d'un joueur (appelée par header-navigation.js)
+ */
+export async function handleLeaveGameLogic() {
+    // Si pas de partie en cours ou pas connecté, retour simple
+    if (!currentGameId || !userId || !localGameState || !localGameState.players || (localGameState.status !== 'active' && localGameState.status !== 'lobby')) {
+        console.log("Pas de partie active ou état invalide, retour simple à l'accueil.");
+        returnToHome(); // Appel direct de la fonction de nettoyage/redirection
+        return;
+    }
+
+    // Si on est dans le lobby, simple suppression du joueur
+    if (localGameState.status === 'lobby') {
+         console.log('🚪 Départ du lobby...');
+         const playerKeys = Object.keys(localGameState.players);
+         const myPlayerKey = playerKeys.find(key => localGameState.players[key].id === userId);
+         if (myPlayerKey) {
+             await updateGame(currentGameId, {
+                 [`players.${myPlayerKey}`]: null // Supprime le joueur
+             });
+         }
+         returnToHome(); // Nettoyage et redirection
+         return;
+    }
+
+    // Si la partie est active ('active')
+    console.log('🚪 Tentative de départ de la partie active...');
+    try {
+        const playerKeys = Object.keys(localGameState.players).filter(k => localGameState.players[k] != null); // Filtre joueurs déjà partis
+        const myPlayerKey = playerKeys.find(key => localGameState.players[key].id === userId);
+        const myPlayer = localGameState.players[myPlayerKey];
+        const playerName = myPlayer?.name || 'Un joueur';
+
+        console.log(`👋 Départ du joueur: ${playerName}, Clé: ${myPlayerKey}, Nombre de joueurs: ${playerKeys.length}`);
+
+        // --- Cas 1: Partie à 2 joueurs restants ---
+        if (playerKeys.length <= 2) {
+            console.log('🏁 Partie à 2 joueurs : Fin de partie déclenchée.');
+            await finishGame(currentGameId, playerKeys, `🚪 ${playerName} a quitté. Partie terminée.`);
+            // Note: La redirection vers l'accueil se fera via handleGameStateUpdate qui détecte 'finished'
+            // Mais on appelle returnToHome pour le nettoyage local immédiat
+            returnToHome();
+
+        // --- Cas 2: Partie à 3+ joueurs restants ---
+        } else {
+            console.log('🔧 Partie à 3+ joueurs : Retrait du joueur et redistribution des cartes.');
+            const updates = {
+                log: `🚪 ${playerName} a quitté. Ses cartes retournent dans la pioche.`
+            };
+
+            // Récupérer les cartes du joueur (main + plateau)
+            const cardsToReturn = [
+                ...(myPlayer.hand || []),
+                ...(myPlayer.played || [])
+            ];
+            console.log(`🃏 Cartes à retourner (${cardsToReturn.length}):`, cardsToReturn.map(c => c.id));
+
+            // Remettre les cartes dans la pioche et mélanger
+            let newDrawPile = [...(localGameState.drawPile || []), ...cardsToReturn];
+            updates.drawPile = shuffleArray(newDrawPile);
+            console.log(` νέα Pioche mélangée avec ${updates.drawPile.length} cartes.`);
+
+            // Supprimer le joueur
+            updates[`players.${myPlayerKey}`] = null; // Marque le joueur comme parti
+
+            // Si c'était le tour du joueur qui part, passer au suivant
+            if (localGameState.currentPlayer === myPlayerKey) {
+                console.log(`턴 Tour du joueur partant (${myPlayerKey}), passage au suivant.`);
+                const remainingKeys = sortPlayerKeys(playerKeys.filter(k => k !== myPlayerKey));
+                const currentIndexInAllKeys = sortPlayerKeys(Object.keys(localGameState.players)).indexOf(myPlayerKey); // Index dans la liste initiale
+                if (remainingKeys.length > 0) {
+                     // Trouver le suivant dans la liste initiale pour garder l'ordre
+                     let nextPlayerIndex = (currentIndexInAllKeys + 1) % Object.keys(localGameState.players).length;
+                     let nextPlayerKey = sortPlayerKeys(Object.keys(localGameState.players))[nextPlayerIndex];
+                     // Chercher le prochain joueur valide
+                     while(!remainingKeys.includes(nextPlayerKey)) {
+                         nextPlayerIndex = (nextPlayerIndex + 1) % Object.keys(localGameState.players).length;
+                         nextPlayerKey = sortPlayerKeys(Object.keys(localGameState.players))[nextPlayerIndex];
+                     }
+
+                    updates.currentPlayer = nextPlayerKey;
+                    updates[`players.${nextPlayerKey}.turnState`] = 'needs_to_draw'; // Le suivant doit piocher
+                    console.log(`-> Prochain joueur: ${nextPlayerKey}`);
+                } else {
+                     console.log("-> Aucun joueur restant ? Fin de partie ? (Cas non géré explicitement ici)");
+                     // Normalement impossible car on a vérifié playerKeys.length > 2
+                }
+            }
+
+            // Envoyer la mise à jour à Firebase
+            await updateGame(currentGameId, updates);
+            console.log('✅ Mise à jour Firebase effectuée.');
+
+            // Nettoyer localement et retourner à l'accueil
+            returnToHome();
+        }
+
+    } catch (error) {
+        console.error('❌ Erreur lors du départ:', error);
+        // Utiliser showAlert au lieu de l'alerte native
+        import('./ui/confirm-modal.js').then(({ showAlert }) => {
+            showAlert("Une erreur est survenue lors de la déconnexion.", "Erreur");
+        });
+        // Tenter un retour à l'accueil même en cas d'erreur
+        returnToHome();
+    } finally {
+        // Assurer le nettoyage même si erreur avant redirection
+        PresenceService.cleanupPresence();
+        if (window.gameUnsubscribe) {
+            window.gameUnsubscribe();
+            window.gameUnsubscribe = null;
+        }
+        window.localGameState = null;
+        window.currentGameId = null; // Nettoyer aussi l'ID courant
+    }
+}

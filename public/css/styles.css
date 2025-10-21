@@ -7,7 +7,7 @@ body {
    ============================================ */
 
 .card {
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, filter 0.2s ease-out;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, filter 0.2s ease-out, z-index 0s;
     cursor: pointer;
     flex-basis: 100px;
     flex-shrink: 1;
@@ -22,9 +22,21 @@ body {
     background-color: white;
 }
 
-.player-hand .card:hover {
-    transform: translateY(-20px) scale(1.05);
+/* ✅ EFFET HOVER AMÉLIORÉ - Cartes dans la main */
+#player-hand .card {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#player-hand .card:hover {
+    transform: translateY(-30px) scale(1.15);
     z-index: 100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.05);
+}
+
+/* Animation douce au retour */
+#player-hand .card:not(:hover) {
+    transition: all 0.25s ease-out;
 }
 
 .card-back {
@@ -1456,7 +1468,42 @@ body {
   margin-top: 2rem; /* ✅ Espace ajouté au-dessus du titre */
 }
 
+/* ============================================
+   RESPONSIVE - ADAPTER L'EFFET SUR MOBILE
+   ============================================ */
 
+/* Sur mobile, effet moins prononcé */
+@media (max-width: 768px) {
+    #player-hand .card:hover {
+        transform: translateY(-20px) scale(1.1);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+}
+
+/* Sur mobile tactile, effet au tap */
+.mobile-mode #player-hand .card:active {
+    transform: translateY(-20px) scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================
+   AUTRES ZONES - EFFET SUBTIL
+   ============================================ */
+
+/* Cartes dans les zones de jeu (Pro/Perso) */
+.board-zone .card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+/* Cartes dans les modales */
+#modal-content .card:hover,
+#choice-modal-content .card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+}
 
 /* ============================================
    CORRECTIF VISUEL HEADER & HERO

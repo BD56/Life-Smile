@@ -21,7 +21,8 @@ const targetModal = document.getElementById('target-modal');
 const targetModalTitle = document.getElementById('target-modal-title');
 const targetModalContent = document.getElementById('target-modal-content');
 
-const rematchContainer = document.getElementById('rematch-container');
+/**const rematchContainer = document.getElementById('rematch-container');
+ */
 const rematchContent = document.getElementById('rematch-content');
 const rematchTitle = document.getElementById('rematch-title');
 const rematchScores = document.getElementById('rematch-scores');
@@ -34,62 +35,6 @@ const rematchTimerEl = document.getElementById('rematch-timer');
 
 let selectedCardForAction = null;
 
-/**
- * Initialise les modales
- */
-export function initializeModals(callbacks) {
-    // Modal générique
-    modalCloseBtn.addEventListener('click', hideCardModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) hideCardModal();
-    });
-
-    // Modal action (jouer/défausser)
-    actionModalPlayBtn.addEventListener('click', () => {
-        if (selectedCardForAction && callbacks.onPlayCard) {
-            callbacks.onPlayCard(selectedCardForAction);
-        }
-        hideActionModal();
-    });
-
-    actionModalDiscardBtn.addEventListener('click', () => {
-        if (selectedCardForAction && callbacks.onDiscardCard) {
-            callbacks.onDiscardCard(selectedCardForAction);
-        }
-        hideActionModal();
-    });
-
-    actionModalCancelBtn.addEventListener('click', hideActionModal);
-    actionModal.addEventListener('click', (e) => {
-        if (e.target === actionModal) hideActionModal();
-    });
-
-    // Modal cible
-    targetModal.addEventListener('click', (e) => {
-        if (e.target === targetModal) hideTargetModal();
-    });
-
-    // Modal rematch
-    rematchYesBtn.addEventListener('click', () => {
-        if (callbacks.onRematchYes) callbacks.onRematchYes();
-    });
-
-    rematchHomeBtn.addEventListener('click', () => {
-        if (callbacks.onRematchHome) callbacks.onRematchHome();
-    });
-
-    rematchMinimizeBtn.addEventListener('click', () => {
-        rematchContainer.classList.remove('flex');
-        rematchContainer.classList.add('hidden');
-        rematchShowBtn.classList.remove('hidden');
-    });
-
-    rematchShowBtn.addEventListener('click', () => {
-        rematchContainer.classList.add('flex');
-        rematchContainer.classList.remove('hidden');
-        rematchShowBtn.classList.add('hidden');
-    });
-}
 
 /**
  * Affiche la modal de détail de cartes
@@ -247,24 +192,157 @@ export function hideChoiceModal() {
     choiceModal.classList.remove('flex');
 }
 
+
+
+// Dans modals.js
+
+// ... (gardez les autres const déclarées en haut) ...
+// Supprimez ou commentez la ligne suivante en haut du fichier :
+// const rematchContainer = document.getElementById('rematch-container');
+// Gardez les autres comme rematchContent, rematchScores etc. si elles sont utilisées ailleurs de la même manière
+
+// ... (autres fonctions) ...
+
 /**
  * Affiche l'écran rematch
  */
+
 export function showRematchScreen() {
-    rematchContainer.classList.remove('hidden');
-    rematchContainer.classList.add('flex');
-    rematchContent.classList.remove('hidden');
-    rematchShowBtn.classList.add('hidden');
+    const rematchContainer = document.getElementById('rematch-container'); // Récupérer ici
+    const rematchContent = document.getElementById('rematch-content');
+    const rematchShowBtn = document.getElementById('rematch-show-btn');
+    console.log("-> DANS showRematchScreen : Tentative d'affichage...");
+    console.log("-> Résultat getElementById:", rematchContainer); // Log de vérification
+    if (rematchContainer) {
+        rematchContainer.classList.remove('hidden');
+        rematchContainer.classList.add('flex');
+        console.log("-> Classes APRES modif:", rematchContainer.className);
+        if (rematchContent) rematchContent.classList.remove('hidden');
+        if (rematchShowBtn) rematchShowBtn.classList.add('hidden');
+    } else {
+        console.error("ERREUR CRITIQUE: #rematch-container introuvable !");
+    }
+}
+
+// Faites de même pour hideRematchScreen et pour les listeners dans initializeModals
+// si elles utilisent rematchContainer, rematchShowBtn etc.
+
+/**
+ * ✅ Cache TOUT (modale ET bouton)
+ */
+export function hideRematchScreen() {
+    const rematchContainer = document.getElementById('rematch-container');
+    const rematchShowBtn = document.getElementById('rematch-show-btn');
+    
+    console.log('❌ Suppression complète modale + bouton');
+    
+    if (rematchContainer) {
+        rematchContainer.classList.add('hidden');
+        rematchContainer.classList.remove('flex');
+    }
+    
+    if (rematchShowBtn) {
+        rematchShowBtn.classList.add('hidden');
+    }
 }
 
 /**
- * Masque l'écran rematch
+ * ✅ Minimise la modale (transforme en bouton)
  */
-export function hideRematchScreen() {
-    rematchContainer.classList.add('hidden');
-    rematchContainer.classList.remove('flex');
-    rematchShowBtn.classList.add('hidden');
+export function minimizeRematchScreen() {
+    const rematchContainer = document.getElementById('rematch-container');
+    const rematchShowBtn = document.getElementById('rematch-show-btn');
+    
+    console.log('📊 Minimisation modale → bouton');
+    
+    if (rematchContainer) {
+        rematchContainer.classList.remove('flex');
+        rematchContainer.classList.add('hidden');
+    }
+    
+    if (rematchShowBtn) {
+        rematchShowBtn.classList.remove('hidden');
+    }
 }
+
+export function initializeModals(callbacks) {
+    // ✅ Fermeture modale détail
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', hideCardModal);
+    }
+    
+    // ✅ BOUTONS JOUER / DÉFAUSSER (MANQUANTS ACTUELLEMENT !)
+    if (actionModalPlayBtn) {
+        actionModalPlayBtn.addEventListener('click', () => {
+            if (selectedCardForAction && callbacks.onPlayCard) {
+                callbacks.onPlayCard(selectedCardForAction);
+                hideActionModal();
+            }
+        });
+    }
+    
+    if (actionModalDiscardBtn) {
+        actionModalDiscardBtn.addEventListener('click', () => {
+            if (selectedCardForAction && callbacks.onDiscardCard) {
+                callbacks.onDiscardCard(selectedCardForAction);
+                hideActionModal();
+            }
+        });
+    }
+    
+    if (actionModalCancelBtn) {
+        actionModalCancelBtn.addEventListener('click', hideActionModal);
+    }
+    
+    // ✅ Rematch (garder ce qui existe)
+    const rematchMinimizeBtn = document.getElementById('rematch-minimize-btn');
+    const rematchShowBtn = document.getElementById('rematch-show-btn');
+    const rematchYesBtn = document.getElementById('rematch-yes-btn');
+    const rematchHomeBtn = document.getElementById('rematch-home-btn');
+
+    if (rematchMinimizeBtn) {
+        rematchMinimizeBtn.addEventListener('click', () => {
+            const rematchContainer = document.getElementById('rematch-container');
+            if (rematchContainer) {
+                rematchContainer.classList.remove('flex');
+                rematchContainer.classList.add('hidden');
+            }
+            const btn = document.getElementById('rematch-show-btn');
+            if (btn) btn.classList.remove('hidden');
+        });
+    }
+
+    if (rematchShowBtn) {
+        rematchShowBtn.addEventListener('click', () => {
+            const rematchContainer = document.getElementById('rematch-container');
+            if (rematchContainer) {
+                rematchContainer.classList.add('flex');
+                rematchContainer.classList.remove('hidden');
+            }
+            const btn = document.getElementById('rematch-show-btn');
+            if (btn) btn.classList.add('hidden');
+        });
+    }
+
+    if (rematchYesBtn) {
+        rematchYesBtn.addEventListener('click', () => {
+            if (callbacks.onRematchYes) callbacks.onRematchYes();
+        });
+    }
+    
+    if (rematchHomeBtn) {
+        rematchHomeBtn.addEventListener('click', () => {
+            if (callbacks.onRematchHome) callbacks.onRematchHome();
+        });
+    }
+}
+
+
+
+
+
+
+
 
 /**
  * Rend l'écran rematch

@@ -29,7 +29,7 @@ export async function handleMalusWithTarget(gameId, gameState, userId, card, tar
     let actionBlocked = false;
     const cardDef = CARD_DEFINITIONS[card.id];
     const targetMetier = target.played.find(c => CARD_DEFINITIONS[c.id].category === 'metier');
-    malusCard.playedBy = myPlayerKey;
+    card.playedBy = myPlayerKey;
     if (card.id === 'licenciement' && targetMetier && CARD_DEFINITIONS[targetMetier.id].status === 'fonctionnaire') actionBlocked = true;
     if (card.id === 'divorce_malus' && targetMetier && CARD_DEFINITIONS[targetMetier.id].advantage === 'immune_to_divorce_malus') actionBlocked = true;
     if (card.id === 'impot' && targetMetier && targetMetier.id === 'bandit') actionBlocked = true;

@@ -284,19 +284,23 @@ export async function voteRematch(gameId, playerKey, vote) {
 /**
  * Termine la partie
  */
+
 export async function finishGame(gameId, playerKeys, logMessage) {
     const clearHands = {};
     playerKeys.forEach(key => {
         clearHands[`players.${key}.hand`] = [];
     });
-    
-    return await updateGame(gameId, {
+
+    const updates = {
         status: 'finished',
         log: logMessage || '🏁 Partie terminée !',
         ...clearHands
-    });
-}
+    };
 
+    console.log(`🔥 Tentative de terminer la partie ${gameId} avec statut 'finished'`, updates); // LOG AJOUTÉ ICI
+
+    return await updateGame(gameId, updates); // updateGame contient déjà des logs d'erreur
+}
 /**
  * Réinitialise la partie pour un rematch
  */

@@ -3,16 +3,15 @@
 // ============================================
 
 import * as HomeUI from './ui/home.js';
-// ✅ AJOUT : Import des fonctions pour cacher les autres écrans
 import { hideLobby } from './ui/lobby.js';
 import { hideBoard } from './ui/board.js';
 import { showConfirm } from './ui/confirm-modal.js';
+// ✅ AJOUT: Importer la fonction de logique de départ (sera créée dans main.js)
+import { handleLeaveGameLogic } from './main.js'; // Assurez-vous que le chemin est correct
 
 let currentView = 'home';
 
-/**
- * Initialise les écouteurs d'événements du header
- */
+// ... (initHeaderNavigation, handleHomeClick, handleBackClick, updateHeaderBackButton, showRulesModal restent inchangés) ...
 export function initHeaderNavigation() {
     const headerHomeBtn = document.getElementById('header-home-btn');
     const headerRulesBtn = document.getElementById('header-rules-btn');
@@ -23,45 +22,46 @@ export function initHeaderNavigation() {
     if (headerBackBtn) headerBackBtn.addEventListener('click', handleBackClick);
 }
 
-/**
- * Gère le clic sur le bouton "Life Smile"
- */
 async function handleHomeClick() {
     if (currentView === 'lobby' || currentView === 'game') {
         const confirmed = await showConfirm(
-            'Êtes-vous sûr de vouloir quitter ? La partie sera perdue.',
-            'Quitter la partie'
+            'Êtes-vous sûr de vouloir quitter ? La partie sera perdue ou interrompue.',
+            'Quitter'
         );
         if (confirmed) {
-            returnToHome();
+            await handleLeaveGameLogic(); // ✅ APPEL LOGIQUE DE DÉPART ICI
+            // La redirection se fait maintenant dans handleLeaveGameLogic si nécessaire
         }
     } else {
+         // Si on est déjà sur l'accueil, on ne fait rien ou on recharge simplement
+         // Pour l'instant, on laisse returnToHome qui nettoie au cas où
         returnToHome();
     }
 }
 
-/**
- * Gère le clic sur "Retour"
- */
+
 async function handleBackClick() {
     if (currentView === 'lobby') {
         const confirmed = await showConfirm(
             'Êtes-vous sûr de vouloir quitter le lobby ?',
             'Quitter le lobby'
         );
-        if (confirmed) returnToHome();
+        if (confirmed) {
+             await handleLeaveGameLogic(); // ✅ APPEL LOGIQUE DE DÉPART ICI (gère aussi le cas lobby)
+             // La redirection se fait maintenant dans handleLeaveGameLogic si nécessaire
+            }
     } else if (currentView === 'game') {
         const confirmed = await showConfirm(
             'Êtes-vous sûr de vouloir quitter la partie ?',
             'Quitter la partie'
         );
-        if (confirmed) returnToHome();
+        if (confirmed) {
+            await handleLeaveGameLogic(); // ✅ APPEL LOGIQUE DE DÉPART ICI
+            // La redirection se fait maintenant dans handleLeaveGameLogic si nécessaire
+         }
     }
 }
 
-/**
- * Met à jour le bouton "Retour"
- */
 export function updateHeaderBackButton(view) {
     currentView = view;
     const headerBackBtn = document.getElementById('header-back-btn');
@@ -71,9 +71,6 @@ export function updateHeaderBackButton(view) {
     else headerBackBtn.classList.remove('hidden');
 }
 
-/**
- * Affiche la modale des règles du jeu (version fixe)
- */
 export function showRulesModal() {
     // ... (contenu de la fonction inchangé) ...
         const rulesModal = document.getElementById('rules-modal');
@@ -231,30 +228,29 @@ export function showRulesModal() {
 
 
 /**
- * Retour à l'écran d'accueil
- * ✅ MODIFIÉ : Cache explicitement lobby et board
+ * Retour à l'écran d'accueil (simplifié, la logique est dans handleLeaveGameLogic)
  */
 export function returnToHome() {
+    // Nettoyage de base
     if (window.gameUnsubscribe) {
         window.gameUnsubscribe();
         window.gameUnsubscribe = null;
     }
-
     window.localGameState = null;
     currentView = 'home';
 
-    // ✅ AJOUT : Cacher les autres écrans
+    // Cacher les autres écrans et afficher l'accueil
     hideLobby();
     hideBoard();
-
-    // Afficher l'accueil
     HomeUI.showHome();
     updateHeaderBackButton('home');
 
-    // Cacher les boutons spécifiques au jeu/lobby
+    // Cacher les boutons spécifiques
     const chatToggleBtn = document.getElementById('chat-toggle-btn');
     const viewModeToggle = document.getElementById('view-mode-toggle');
     if (chatToggleBtn) chatToggleBtn.classList.add('hidden');
     if (viewModeToggle) viewModeToggle.classList.add('hidden');
-}
 
+    // ✅ Réinitialiser l'URL
+    window.history.replaceState({}, '', window.location.pathname);
+}
